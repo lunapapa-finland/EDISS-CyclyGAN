@@ -46,8 +46,6 @@ The primary objective of employing Cycle-GAN in this experiment is to train a mo
 
 1. **Clone the Repository:**
 
-  Using git:
-
    ```bash
    git clone https://github.com/lunapapa-finland/EDISS-CyclyGAN.git
    ```
@@ -97,9 +95,118 @@ The primary objective of employing Cycle-GAN in this experiment is to train a mo
   
   This command enables the execution rights for three essential bash scripts: org.sh, create_checkpoints_structure.sh, and create_datasets_structure.sh. These scripts facilitate the automatic creation or organization of structures for datasets and checkpoints.
 
-## Details of Training Steps
+## Usage Details for Makefile Commands
 
-## Conclusion of Training Results
+In the subsequent sections dedicated to training and testing, the configuration of hyperparameters in the CycleGAN setup is intricate. We will employ not only Python commands but also utilize bash commands for file manipulation. To streamline workflow control and enhance maintenance, we will consistently leverage the `make` command.
+
+To explore the available `make` commands, simply type the following in the command line:
+
+```bash
+make
+```
+
+This command will display all the make commands specified in the MakeFile. Subsequently, you can choose to execute specific commands or formulate your own set of commands following a similar pattern. It is crucial to note that you should always be operating within the `OBS directory`, not the root folder, as all optimizations and workflows are configured in the OBS folder
+
+The output will be:
+
+- `create_checkpoints_structure`: Create folder structure for preparation of pretrained checkpoint
+- `create_datasets_structure`: Create folder structure for datasets
+- `org_structure`: Copy datasets and checkpoints to the right places
+- `test_SPSCDvsALSHD_random_Gresnet_DnLayer`: Testing Model with Generator_resnet9B and Discriminator nLayer
+- `test_SPSCDvsALSHD_random_Gresnet_DPatchGAN`: Testing Model with Generator_resnet9B and Discriminator PatchGaN
+- `test_SPSCDvsALSHD_random_Gunet_256_DnLayer`: Testing Model with Generator_unet256 and Discriminator nLayer
+- `test_SPSCDvsALSHD_random_Gunet_256_DPatchGAN`: Testing Model with Generator_unet256 and Discriminator PatchGaN
+- `test_SPSCDvsALSHD_selected_Gresnet_DnLayer`: Testing Model with Generator_resnet9B and Discriminator nLayer
+- `test_SPSCDvsALSHD_selected_Gresnet_DPatchGAN`: Testing Model with Generator_resnet9B and Discriminator PatchGaN
+- `test_SPSCDvsALSHD_selected_Gunet_256_DnLayer`: Testing Model with Generator_unet256 and Discriminator nLayer
+- `test_SPSCDvsALSHD_selected_Gunet_256_DPatchGAN`: Testing Model with Generator_unet256 and Discriminator PatchGaN
+- `train_SPSCDvsALSHD_random_Gresnet_DnLayer`: Training Model with Generator_resnet9B and Discriminator nLayer using random images
+- `train_SPSCDvsALSHD_random_Gresnet_DPatchGAN`: Training Model with Generator_resnet9B and Discriminator PatchGaN using random images
+- `train_SPSCDvsALSHD_random_Gunet_256_DnLayer`: Training Model with Generator_unet256 and Discriminator nLayer using random images
+- `train_SPSCDvsALSHD_random_Gunet_256_DPatchGAN`: Training Model with Generator_unet256 and Discriminator PatchGaN using random images
+- `train_SPSCDvsALSHD_selected_Gresnet_DnLayer`: Training Model with Generator_resnet9B and Discriminator nLayer using selected images
+- `train_SPSCDvsALSHD_selected_Gresnet_DPatchGAN`: Training Model with Generator_resnet9B and Discriminator PatchGaN using selected images
+- `train_SPSCDvsALSHD_selected_Gunet_256_DnLayer`: Training Model with Generator_unet256 and Discriminator nLayer using selected images
+- `train_SPSCDvsALSHD_selected_Gunet_256_DPatchGAN`: Training Model with Generator_unet256 and Discriminator PatchGaN using selected images
+
+## Training Steps Overview
+
+For the purpose of illustration, we will perform a single training process. If you wish to train your own datasets, whether in the maritime domain or any other domain, simply follow the steps outlined below:
+
+### Data Split Strategy
+
+- **TrainA:** Select 80 images from Domain A with obvious objects (e.g., ship, shore, etc.).
+- **TrainB:** Select 101 images from Domain B with obvious objects (e.g., ship, shore, etc.).
+- **TestA:** Randomly select images from Domain A (No need to transfer images from photorealistic to simulated ones).
+- **TestB:** Randomly select 200 images from Domain B (Same as the third experiment setup for cross-validation purposes).
+
+In you have your own datasets or you want to change the samples in the datasets, simple run
+
+```bash
+# Command to create folder structure for datasets 
+$ make create_datasets_structure
+```
+
+and you can copy your datasets to the correspondinng folder for further usage.
+
+### Training Parameter Highlights
+
+- **Generator:** Resnet 9 Block/Unet256
+- **Discriminator:** PatchGAN/nLayer
+- **Other Hyperparameters**
+
+### Training Steps
+
+```bash
+# Command to copy checkpoints and datasets to corresponding folders in the root
+$ make org_structure
+
+# Command to start the training process for the model
+$ make train_SPSCDvsALSHD_selected_Gresnet_DPatchGAN
+```
+
+It essentially runs the following command:
+
+```bash
+nohup python3 ../train.py \
+    --dataroot ../datasets/SPSCDvsALSHD_selected \  # Specify the root directory for the training dataset
+    --name SPSCDvsALSHD_selected_Gresnet_DPatchGAN \  # Set a name for the training run
+    --model cycle_gan \  # Specify the type of model (CycleGAN in this case)
+    --gpu_ids 0 \  # Specify the GPU to be used for training
+    --gan_mode vanilla \  # Set the mode of GAN training to vanilla
+    --pool_size 50 \  # Specify the size of the image buffer for discriminator updates
+    --batch_size 1 \  # Set the size of each mini-batch used during training
+    --checkpoints_dir ../checkpoints \  # Specify the directory where checkpoints will be saved
+    --display_id -1 \  # Disable visual display during training
+    --preprocess scale_width_and_crop \  # Specify the preprocessing method for input images
+    --load_size 1920 \  # Set the size to load training images
+    --crop_size 512 \  # Specify the size to crop training images
+    --save_epoch_freq 5 \  # Specify the frequency (in epochs) to save checkpoints
+    > ./checkpoints/SPSCDvsALSHD_selected_Gresnet_DPatchGAN/SPSCDvsALSHD_selected_Gresnet_DPatchGAN.log \  # Redirect standard output to a log file
+    2>&1 &  # Redirect standard error to the same log file as standard output and run the command in the background
+```
+
+## Analysis of Training Logs
+
+In this section, we will perform an analysis of our training models based on their corresponding logs. The training log contains 8 parameters that warrant analysis, and, in total, we will generate 9 graphs per log.
+
+The structure of the training log is as follows:
+
+```
+(epoch: 153, iters: 100, time: 0.622, data: 0.313) D_A: 0.087 G_A: 3.190 cycle_A: 0.888 idt_A: 0.481 D_B: 0.011 G_B: 4.768 cycle_B: 1.115 idt_B: 0.387
+```
+
+### Parameters to Analyze
+
+- **Discriminator Loss (D_A, D_B):** Represent the loss of discriminators D_A and D_B. Lower values indicate better performance.
+
+- **Generator Loss (G_A, G_B):** Represent the loss of generators G_A and G_B. The generator aims to minimize this loss by generating realistic data.
+
+- **Cycle Consistency Loss (cycle_A, cycle_B):** Associated with cycle consistency regularization, ensuring consistency in image translation.
+
+- **Identity Loss (idt_A, idt_B):** Associated with identity mapping regularization, ensuring consistency in translated images.
+
+\[ \text{Target\_Loss} = \min_{\text{epochs}} \left( \text{D\_B\_values} + \text{G\_B\_values} + \text{cycle\_B\_values} + \text{idt\_B\_values} \right) \]
 
 ## Details of Testing Steps
 
