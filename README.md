@@ -42,16 +42,12 @@ The primary objective of employing Cycle-GAN in this experiment is to train a mo
 
 ![Experimental Overview](./imgs/cycleGAN.png)
 
-Your provided instructions seem to outline the setup steps for a particular environment. Let's break down each step:
-
-Certainly! Here is the provided environment setup overview formatted in Markdown:
-
-```markdown
 ## Overview of Environment Setup
 
 1. **Clone the Repository:**
-  Using git: 
-  
+
+  Using git:
+
    ```bash
    git clone https://github.com/lunapapa-finland/EDISS-CyclyGAN.git
    ```
@@ -73,7 +69,7 @@ Certainly! Here is the provided environment setup overview formatted in Markdown
 3. **Download a tar file in the root of the cloned repository:**
 
    ```bash
-   gdown --id 1z1SQPF40atK_Tfxw0gjsAW1C8lBKjPnB --output OBS.tar
+   gdown 1z1SQPF40atK_Tfxw0gjsAW1C8lBKjPnB --output OBS.tar
    ```
 
    This command uses `gdown` to download a tar file containing necessary extra setups as well as small datasets.
@@ -81,10 +77,8 @@ Certainly! Here is the provided environment setup overview formatted in Markdown
 4. **Extract the contents of the tar file:**
 
    ```bash
-   tar -xvf OBS.tar --exclude='._*'
+   tar -xvf OBS.tar
    ```
-
-   `._*` files should be excluded since this tar was created on OSX.
 
 5. **Remove the downloaded tar file:**
 
@@ -93,6 +87,15 @@ Certainly! Here is the provided environment setup overview formatted in Markdown
    ```
 
    This command removes the "OBS.tar" file, freeing up disk space after its contents have been extracted.
+
+6. **Navigate to the OBS folder and grant execution permissions to the following bash files:**
+
+   ```bash
+   cd OBS
+   chmod +x org.sh create_checkpoints_structure.sh create_datasets_structure.sh
+   ```
+  
+  This command enables the execution rights for three essential bash scripts: org.sh, create_checkpoints_structure.sh, and create_datasets_structure.sh. These scripts facilitate the automatic creation or organization of structures for datasets and checkpoints.
 
 ## Details of Training Steps
 
