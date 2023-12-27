@@ -2,7 +2,7 @@
 
 Explore an all-in-one Colab notebook to reproduce my results using the pre-trained model: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gn4E-sGde88apPNuxCiONjOaJJ1FrIU7?usp=sharing)
 
-If you wish to conduct your experiments using maritime data with fine-tuned hyperparameters, please continue reading.
+If you wish to conduct your experiments using maritime data or other datasets with fine-tuned hyperparameters, please continue reading.
 
 ## Overview of CycleGAN
 
@@ -105,7 +105,7 @@ To explore the available `make` commands, simply type the following in the comma
 make
 ```
 
-This command will display all the make commands specified in the MakeFile. Subsequently, you can choose to execute specific commands or formulate your own set of commands following a similar pattern. It is crucial to note that you should always be operating within the `OBS directory`, not the root folder, as all optimizations and workflows are configured in the OBS folder
+This command will display all the make commands specified in the MakeFile. Subsequently, you can choose to execute specific commands or formulate your own set of commands following a similar pattern. It is crucial to note that you should always be operating within the `OBS directory`, not the root folder, as all optimizations and workflows are configured in the OBS folder as the "PLUS" function which did not offered in the original project.
 
 The output will be:
 
@@ -133,29 +133,29 @@ The output will be:
 
 For the purpose of illustration, we will perform a single training process. If you wish to train your own datasets, whether in the maritime domain or any other domain, simply follow the steps outlined below:
 
-### Data Split Strategy
+### Determiin the Data Split Strategy
+
+#### In my case
 
 - **TrainA:** Select 80 images from Domain A with obvious objects (e.g., ship, shore, etc.).
 - **TrainB:** Select 101 images from Domain B with obvious objects (e.g., ship, shore, etc.).
 - **TestA:** Randomly select images from Domain A (No need to transfer images from photorealistic to simulated ones).
 - **TestB:** Randomly select 200 images from Domain B (Same as the third experiment setup for cross-validation purposes).
 
-In you have your own datasets or you want to change the samples in the datasets, simple run
+#### In your case
+
+if you have your own datasets or you want to change the samples in the datasets, simple run
 
 ```bash
 # Command to create folder structure for datasets 
 $ make create_datasets_structure
 ```
 
-and you can copy your datasets to the correspondinng folder for further usage.
+and copy your datasets to the correspondinng datasets folder in the project root.
 
-### Training Parameter Highlights
+### Follow the Training Steps
 
-- **Generator:** Resnet 9 Block/Unet256
-- **Discriminator:** PatchGAN/nLayer
-- **Other Hyperparameters**
-
-### Training Steps
+#### In my case
 
 ```bash
 # Command to copy checkpoints and datasets to corresponding folders in the root
@@ -186,30 +186,95 @@ nohup python3 ../train.py \
     2>&1 &  # Redirect standard error to the same log file as standard output and run the command in the background
 ```
 
-## Analysis of Training Logs
+#### In your case
 
-In this section, we will perform an analysis of our training models based on their corresponding logs. The training log contains 8 parameters that warrant analysis, and, in total, we will generate 9 graphs per log.
+setup your own make command following the abovementioned structure after you successfully org your project structure in regards to datasets.
 
-The structure of the training log is as follows:
+## Training Log Analysis
+
+Within this section, an in-depth examination of our training models will unfold, driven by the insights derived from their respective logs. The training log encapsulates 8 parameters that merit thorough analysis, leading to the generation of 9 graphs for each log.
+
+The structure of the training log is exemplified below:
 
 ```
 (epoch: 153, iters: 100, time: 0.622, data: 0.313) D_A: 0.087 G_A: 3.190 cycle_A: 0.888 idt_A: 0.481 D_B: 0.011 G_B: 4.768 cycle_B: 1.115 idt_B: 0.387
 ```
 
-### Parameters to Analyze
+For a comprehensive analysis, please refer to the [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gn4E-sGde88apPNuxCiONjOaJJ1FrIU7?usp=sharing).
 
-- **Discriminator Loss (D_A, D_B):** Represent the loss of discriminators D_A and D_B. Lower values indicate better performance.
+In essence, our findings highlight the effectiveness of employing the Generator-Resnet-9blocks and Discriminator-nLayer-3 configuration. All losses demonstrate a converging trend over time, reaching a minimum total loss of 2 at the 129th epoch with 72nd iterations.
 
-- **Generator Loss (G_A, G_B):** Represent the loss of generators G_A and G_B. The generator aims to minimize this loss by generating realistic data.
+![Generator-Resnet+Discriminator-nLayer](./imgs/epoch.png)
 
-- **Cycle Consistency Loss (cycle_A, cycle_B):** Associated with cycle consistency regularization, ensuring consistency in image translation.
+## Testing Procedure Details
 
-- **Identity Loss (idt_A, idt_B):** Associated with identity mapping regularization, ensuring consistency in translated images.
+To initiate the testing phase, execute the following command:
 
-\[ \text{Target\_Loss} = \min_{\text{epochs}} \left( \text{D\_B\_values} + \text{G\_B\_values} + \text{cycle\_B\_values} + \text{idt\_B\_values} \right) \]
+```bash
+make test_SPSCDvsALSHD_selected_Gresnet_DnLayer
+```
 
-## Details of Testing Steps
+The corresponding hyperparameters for this testing process are outlined below:
+
+```markdown
+----------------- Options ---------------
+             aspect_ratio: 1.0
+               batch_size: 1
+          checkpoints_dir: ../checkpoints                 [default: ./checkpoints]
+                crop_size: 256
+                 dataroot: ../datasets/SPSCDvsALSHD_selected/testB [default: None]
+             dataset_mode: single
+                direction: AtoB
+          display_winsize: 256
+                    epoch: latest
+                     eval: False
+                  gpu_ids: 0
+                init_gain: 0.02
+                init_type: normal
+                 input_nc: 3
+                  isTrain: False                          [default: None]
+                load_iter: 0                              [default: 0]
+                load_size: 1920                           [default: 256]
+         max_dataset_size: inf
+                    model: test
+             model_suffix:
+               n_layers_D: 3
+                     name: SPSCDvsALSHD_selected_Gresnet_DnLayer [default: experiment_name]
+                      ndf: 64
+                     netD: basic
+                     netG: resnet_9blocks
+                      ngf: 64
+               no_dropout: True                           [default: False]
+                  no_flip: False
+                     norm: instance
+                 num_test: 10                             [default: 50]
+              num_threads: 4
+                output_nc: 3
+                    phase: test
+               preprocess: none                           [default: resize_and_crop]
+              results_dir: ./results/
+           serial_batches: False
+                   suffix:
+                use_wandb: False
+                  verbose: False
+       wandb_project_name: CycleGAN-and-pix2pix
+----------------- End -------------------
+```
 
 ## Conclusion of Testing Results
 
+Effective style transfer is evident in the context of waves, but for other objects, the performance is not as noteworthy. This accomplishment is achieved through the utilization of Generator-Resnet-9blocks and Discriminator-nLayer-3.
+![result1](./imgs/result1.png)
+![result2](./imgs/result2.png)
+
 ## Final Conclusion
+
+For all the expremental results, please see [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gn4E-sGde88apPNuxCiONjOaJJ1FrIU7?usp=sharing). Basically, the comprehensive set of experiments underscores the vital importance of meticulous selection in model architectures, hyperparameters, and datasets for the successful training of Cycle-GAN, especially in complex tasks like maritime image style transfer.
+
+1. **Resnet vs. Unet-256:**
+   - Resnet surpasses Unet-256, excelling not only in achieving superior loss convergence but also in effectively managing high-resolution images.
+
+2. **NLayer vs. PatchGAN:**
+   - NLayer demonstrates superior performance compared to PatchGAN in terms of loss convergence.
+
+3. Achieving effective style transfer in maritime domains demands careful pre-screening of datasets; otherwise, the resultant model may emphasize stylistic features more closely linked to seawater rather than essential maritime elements.
