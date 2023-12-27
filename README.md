@@ -40,35 +40,53 @@ The primary objective of employing Cycle-GAN in this experiment is to train a mo
 2. **Generator_A2B Cyclical Image Generation:**
    Generator_A2B is tasked with creating new photorealistic images that closely emulate the styles inherent in the original photorealistic images. The objective is to deceive discriminator A to the maximum extent possible, making it challenging for the discriminator to differentiate between genuine and generated photorealistic images.
 
-![Experimental Overview](https://drive.google.com/uc?id=1re-P2DIluQgYCux7FOnHoG1Hs7nd7-8N)
+![Experimental Overview](./imgs/cycleGAN.png)
 
 Your provided instructions seem to outline the setup steps for a particular environment. Let's break down each step:
 
+Certainly! Here is the provided environment setup overview formatted in Markdown:
+
+```markdown
 ## Overview of Environment Setup
 
 1. **Clone the Repository:**
-
+  Using git: 
+  
    ```bash
    git clone https://github.com/lunapapa-finland/EDISS-CyclyGAN.git
    ```
 
-2. **Download a tar file from Google Drive:**
+2. **Install the required packages. You can use either pip or conda for environment control:**
+
+   Using pip:
 
    ```bash
-   wget "https://drive.google.com/uc?id=1z1SQPF40atK_Tfxw0gjsAW1C8lBKjPnB" -O OBS.tar
+   pip install -r requirements.txt
    ```
 
-   This command uses `wget` to download a tar file containing necessary extra setups as well as small datasets.
+   Or using conda:
 
-3. **Extract the contents of the tar file:**
+   ```bash
+   conda install --file requirements.txt
+   ```
+
+3. **Download a tar file in the root of the cloned repository:**
+
+   ```bash
+   gdown --id 1z1SQPF40atK_Tfxw0gjsAW1C8lBKjPnB --output OBS.tar
+   ```
+
+   This command uses `gdown` to download a tar file containing necessary extra setups as well as small datasets.
+
+4. **Extract the contents of the tar file:**
 
    ```bash
    tar -xvf OBS.tar --exclude='._*'
    ```
 
-   ._"  files should be excluded since this tar was created on OSX.
+   `._*` files should be excluded since this tar was created on OSX.
 
-4. **Remove the downloaded tar file:**
+5. **Remove the downloaded tar file:**
 
    ```bash
    rm OBS.tar
